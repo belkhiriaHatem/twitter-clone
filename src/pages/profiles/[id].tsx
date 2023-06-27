@@ -15,7 +15,6 @@ import ProfileImage from "~/components/ProfileImage";
 import InfiniteTweetList from "~/components/InfiniteTweetList";
 import Button from "~/components/Button";
 import { useSession } from "next-auth/react";
-import LoadingSpinner from "~/components/LoadingSpinner";
 
 const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   id,
@@ -45,7 +44,7 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   return (
     <>
       <Head>
-        <title>{`Twitter - ${profile.name}`}</title>
+        <title>{`Twitter - ${profile.name!}`}</title>
       </Head>
       <header className="sticky top-0 z-10 flex items-center border-b bg-white px-4 py-2">
         <Link href=".." className="mr-2">

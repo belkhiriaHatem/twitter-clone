@@ -1,6 +1,8 @@
 import { string, z } from "zod";
-import { createTRPCContext, createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
-import { Prisma, PrismaClient } from '@prisma/client'
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import type { createTRPCContext } from "~/server/api/trpc";
+import { PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { inferAsyncReturnType } from "@trpc/server";
 const prisma = new PrismaClient()
 
