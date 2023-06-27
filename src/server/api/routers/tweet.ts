@@ -9,6 +9,7 @@ export const tweetRouter = createTRPCRouter({
     .input(z.object({ content: z.string() }))
     .mutation(async ({ ctx, input: { content } }) => {
         const tweety =  await prisma.tweet.create({ data: { content, userId: ctx.session.user.id }})
+        void ctx.revalidateSSG?.(`/profiles/${ctx.session.user.id}`);
         return tweety
   }),
   infiniteFeed: publicProcedure.input(

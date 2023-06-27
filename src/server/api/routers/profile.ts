@@ -29,5 +29,32 @@ export const profileRouter = createTRPCRouter({
         tweetsCount: profile._count.tweets,
         isFollowing: profile.followers.length > 0
     }
+  }),
+  toggleFollow: protectedProcedure.input(z.object({ userId: z.string() })).mutation(async ({ ctx, input: { userId }}) => {
+    const currentUserId = ctx.session.user.id;
+
+    const existingFollow = await prisma.user.findFirst({ where: { id: userId, followers: { some: { id: currentUserId }}}});
+
+    let addedFollow
+    if (existingFollow == null) {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { followers: { connect: { id: currentUserId }}}
+        });
+        addedFollow = true
+    } else {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { followers: { disconnect: { id: currentUserId }}}
+        });
+        addedFollow = false
+    }
+
+    // Revalidate
+
+    void ctx.revalidateSSG?.(`/profiles/${userId}`);
+    void ctx.revalidateSSG?.(`/profiles/${currentUserId}`);
+
+    return { addedFollow }
   })
 })

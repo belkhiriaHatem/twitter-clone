@@ -22,8 +22,9 @@ export default function Home() {
                   onClick={() => setSelectedTab(tab)}
                   key={tab}
                   className={`flex-grow p-2 transition-all duration-100 hover:bg-gray-200 focus-visible:bg-gray-200 ${
-                    tab == selectedTab &&
-                    "border-b-4 border-b-blue-500 font-bold"
+                    tab == selectedTab
+                      ? "border-b-4 border-b-blue-500 font-bold"
+                      : ""
                   }`}
                 >
                   {tab}

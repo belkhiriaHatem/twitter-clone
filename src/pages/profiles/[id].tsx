@@ -15,6 +15,7 @@ import ProfileImage from "~/components/ProfileImage";
 import InfiniteTweetList from "~/components/InfiniteTweetList";
 import Button from "~/components/Button";
 import { useSession } from "next-auth/react";
+import LoadingSpinner from "~/components/LoadingSpinner";
 
 const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   id,
@@ -24,6 +25,22 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
     { userId: id },
     { getNextPageParam: (lastPage) => lastPage.nextCursor }
   );
+
+  const trpcUtils = api.useContext();
+  const toggleFollow = api.profile.toggleFollow.useMutation({
+    onSuccess: ({ addedFollow }) => {
+      trpcUtils.profile.getById.setData({ id }, (oldData) => {
+        if (oldData == null) return;
+        const countModifier = addedFollow ? 1 : -1;
+        return {
+          ...oldData,
+          isFollowing: addedFollow,
+          followersCount: oldData.followersCount + countModifier,
+        };
+      });
+    },
+  });
+
   if (profile == null) return <ErrorPage statusCode={404} />;
   return (
     <>
@@ -50,7 +67,8 @@ const ProfilePage: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
         <FollowButton
           isFollowing={profile.isFollowing}
           userId={id}
-          onClick={() => null}
+          isLoading={toggleFollow.isLoading}
+          onClick={() => toggleFollow.mutate({ userId: id })}
         />
       </header>
       <main>
@@ -95,7 +113,9 @@ function FollowButton({
   userId,
   isFollowing,
   onClick,
+  isLoading,
 }: {
+  isLoading: boolean;
   userId: string;
   isFollowing: boolean;
   onClick: () => void;
@@ -104,7 +124,7 @@ function FollowButton({
   if (session.status !== "authenticated" || session.data.user.id === userId)
     return null;
   return (
-    <Button small onClick={onClick} gray={isFollowing}>
+    <Button disabled={isLoading} small onClick={onClick} gray={isFollowing}>
       {isFollowing ? "Unfollow" : "Follow"}
     </Button>
   );
